@@ -90,6 +90,7 @@ export default function ExpensesPage({
                   className="input border border-gray-400 bg-gray-100 rounded-md shadow-md pl-4 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter amount"
                   value={expense.amount}
+                  min={0}
                   onChange={(e) => handleChange(index, 'amount', e.target.value)}
                 />
               </div>

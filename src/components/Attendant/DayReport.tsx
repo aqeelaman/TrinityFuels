@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function ReportPage({ report }: Props) {
-  const { shift, payment, indent, lubricants, expenses } = report;
+  const { shift, receipt, indent, lubricants, expenses } = report;
 
   // Utility function to calculate totals for fuel types
   const calculateFuelSummary = () => {
@@ -77,7 +77,7 @@ export default function ReportPage({ report }: Props) {
     Note: e.note || '',
   }));
 
-  const denominationRows = Object.entries(payment.denominations)
+  const denominationRows = Object.entries(receipt.denominations)
     .sort((a, b) => parseInt(b[0]) - parseInt(a[0]))
     .map(([denom, count]) => ({
       Denomination: `₹${denom}`,
@@ -90,10 +90,10 @@ export default function ReportPage({ report }: Props) {
   const totalIndent = calculateTotal(indentRows);
   const totalLubricants = calculateTotal(lubricantRows);
   const totalExpenses = calculateTotal(expenseRows);
-  const cashTotal = denominationRows.reduce((sum, row) => sum + row.Amount, 0) + payment.coins;
-  const paymentTotal = payment.paytm + payment.swipe + (payment.scheme || 0);
+  const cashTotal = denominationRows.reduce((sum, row) => sum + row.Amount, 0) + receipt.coins;
+  const paymentTotal = receipt.paytm + receipt.swipe + (receipt.scheme || 0);
   const totalReceipt = cashTotal + paymentTotal;
-  const excessOrShort = totalReceipt + totalIndent - totalExpenses - (totalFuelSales + totalLubricants);
+  const excessOrShort = totalFuelSales + totalLubricants - totalReceipt - totalIndent - totalExpenses;
 
   // Fuel summary rows
   const fuelSummaryRows = calculateFuelSummary();
@@ -179,11 +179,11 @@ export default function ReportPage({ report }: Props) {
       ['Cash Summary'],
       ['Denomination', 'Count', 'Amount'],
       ...denominationRows.map((r) => Object.values(r)),
-      ['Coins', '', payment.coins],
+      ['Coins', '', receipt.coins],
       ['Cash Total', '', cashTotal],
-      ['Paytm', '', payment.paytm],
-      ['Swipe', '', payment.swipe],
-      ['Scheme', '', payment.scheme || 0],
+      ['Paytm', '', receipt.paytm],
+      ['Swipe', '', receipt.swipe],
+      ['Scheme', '', receipt.scheme || 0],
       ['Total', '', totalReceipt],
     ];
 
@@ -337,7 +337,7 @@ export default function ReportPage({ report }: Props) {
         <SectionTable
           title="Payments"
           headers={['Denomination', 'Count', 'Total']}
-          rows={[...denominationRows.map((r) => Object.values(r)), ['Coins', '', payment.coins], ['Cash Total', '', cashTotal], ['Paytm', '', payment.paytm], ['Swipe', '', payment.swipe], ['Scheme', '', payment.scheme ?? 0]]}
+          rows={[...denominationRows.map((r) => Object.values(r)), ['Coins', '', receipt.coins], ['Cash Total', '', cashTotal], ['Paytm', '', receipt.paytm], ['Swipe', '', receipt.swipe], ['Scheme', '', receipt.scheme ?? 0]]}
         />
 
         <section className="bg-gray-100 p-6 rounded-lg shadow-md space-y-4 mt-6">

@@ -1,4 +1,3 @@
-
 'use client'
 import { Dispatch, SetStateAction } from 'react';
 
@@ -62,6 +61,7 @@ export default function CashEntryPage({
                     type="number"
                     className="input border px-3 py-1 rounded"
                     value={count}
+                    min={0}
                     onChange={(e) =>
                       handleDenominationChange(denom, parseInt(e.target.value) || 0)
                     }
@@ -83,6 +83,7 @@ export default function CashEntryPage({
                 type="number"
                 className="input border px-3 py-1 rounded w-full"
                 value={data.coins}
+                min={0}
                 onChange={(e) => handleChange('coins', parseInt(e.target.value) || 0)}
                 placeholder="₹10 coins total"
               />
@@ -94,6 +95,7 @@ export default function CashEntryPage({
                 type="number"
                 className="input border px-3 py-1 rounded w-full"
                 value={data.paytm}
+                min={0}
                 onChange={(e) => handleChange('paytm', parseFloat(e.target.value) || 0)}
                 placeholder="₹0"
               />
@@ -105,6 +107,7 @@ export default function CashEntryPage({
                 type="number"
                 className="input border px-3 py-1 rounded w-full"
                 value={data.swipe}
+                min={0}
                 onChange={(e) => handleChange('swipe', parseFloat(e.target.value) || 0)}
                 placeholder="₹0"
               />
@@ -116,6 +119,7 @@ export default function CashEntryPage({
                 type="number"
                 className="input border px-3 py-1 rounded w-full"
                 value={data.scheme}
+                min={0}
                 onChange={(e) => handleChange('scheme', parseFloat(e.target.value) || 0)}
                 placeholder="₹0"
               />

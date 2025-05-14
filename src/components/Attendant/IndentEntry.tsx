@@ -104,6 +104,7 @@ export default function IndentEntry({ data, setData, }: {
                   className="input border border-gray-400 bg-gray-100 rounded-md shadow-md pl-4 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter slip number"
                   value={entry.slipNumber}
+                  min={0}
                   onChange={(e) => handleChange(index, "slipNumber", parseInt(e.target.value))}
                 />
               </div>
@@ -149,6 +150,7 @@ export default function IndentEntry({ data, setData, }: {
                   className="input border border-gray-400 bg-gray-100 rounded-md shadow-md pl-4 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter quantity in litres"
                   value={entry.quantity}
+                  min={0}
                   onChange={(e) => handleChange(index, "quantity", parseFloat(e.target.value))}
                 />
               </div>

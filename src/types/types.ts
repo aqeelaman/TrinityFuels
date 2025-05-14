@@ -1,55 +1,3 @@
-// // src/types.ts
-
-// export type ReportData = {
-//     shift: {
-//       shiftTime: string;
-//       dispenser: string;
-//       attendants: string[];
-//       fuelPrices: {
-//         petrol: number;
-//         diesel: number;
-//       };
-//       nozzles: {
-//         nozzle: string;
-//         fuelType: string;
-//         opening: number;
-//         closing: number;
-//         saleQty: number;
-//         amount: number;
-//       }[];
-//     };
-//     cash: {
-//       denominations: {
-//         [denomination: string]: number;
-//       };
-//       coins: number;
-//       paytm: number;
-//       swipe: number;
-//     };
-//     indentSales: {
-//       customer: string;
-//       vehicle: string | null;
-//       fuelType: string;
-//       qty: number;
-//       amount: number;
-//       indentSlip: string;
-//       time: string;
-//     }[];
-//     lubricants: {
-//       name: string;
-//       qty: number;
-//       amount: number;
-//     }[];
-//     expenses: {
-//       category: string;
-//       amount: number;
-//       note?: string;
-//     }[];
-//   };
-
-
-// src/types.ts
-
 export type FuelType = 'HSD' | 'MS';
 
 export type Reading = {
@@ -84,7 +32,7 @@ export type IndentSaleEntry = {
     time: string;
 };
 
-export type PaymentData = {
+export type ReceiptData = {
     denominations: {
         500: number;
         200: number;
@@ -110,5 +58,5 @@ export type ReportData = {
     lubricants: LubricantsData[];
     indent: IndentSaleEntry[];
     expenses: ExpenseData[];
-    payment: PaymentData;
+    receipt: ReceiptData;
 };

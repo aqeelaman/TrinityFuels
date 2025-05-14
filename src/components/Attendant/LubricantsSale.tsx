@@ -32,11 +32,6 @@ export default function LubricantsPage({
     console.log('Lubricants:', data);
     console.log('Quantities:', quantities);
     console.log('Total Amount:', totalAmount);
-    // You can also log the entire data object if needed
-    // const data = {
-    //   lubricants: data,
-    //   totalAmount,
-    // };
     console.log('Data:', data);
   }
 
@@ -62,6 +57,7 @@ export default function LubricantsPage({
                 <input
                   type="number"
                   value={lube.quantity || ''}
+                  min={0}
                   placeholder="0"
                   onChange={(e) =>
                     handleQtyChange(i, parseFloat(e.target.value) || 0)
