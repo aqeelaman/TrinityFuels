@@ -11,9 +11,11 @@ const LUBRICANTS = [
 export default function LubricantsPage({
   data,
   setData,
+  errors = []
 }: {
   data: { name: string; quantity: number; price: number }[];
   setData: (data: { name: string; quantity: number; price: number }[]) => void;
+  errors?: string[];
 }) {
   const quantities = data.map((item) => item.quantity || 0);
 
@@ -38,6 +40,17 @@ export default function LubricantsPage({
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">🛢️ Lubricants</h2>
+
+      {errors.length > 0 && (
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+          <h3 className="font-bold">Please fix the following errors:</h3>
+          <ul className="list-disc ml-6">
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <table className="w-full border-collapse bg-white shadow rounded overflow-hidden text-sm">
         <thead className="bg-gray-200">

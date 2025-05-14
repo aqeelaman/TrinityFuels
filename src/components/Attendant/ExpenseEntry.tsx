@@ -3,17 +3,20 @@
 type ExpenseData = {
   expenseName: string;
   amount: number;
+  note?: string;
 };
 
 export default function ExpensesPage({
   data,
   setData,
+  errors = [],
 }: {
   data: ExpenseData[];
   setData: (data: ExpenseData[]) => void;
+  errors?: string[];
 }) {
 
-  const EXPENSES = ["Auto", "Food", "Loading", "Cleaning"]
+  const EXPENSES = ["Auto", "Food", "Jump", "Loading", "Cleaning", "Advance", "Other"];
 
   const handleChange = (index: number, field: keyof ExpenseData, value: string | number) => {
     const updated = [...data];
@@ -52,6 +55,16 @@ export default function ExpensesPage({
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">🧾 Expenses</h2>
+      {errors.length > 0 && (
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+          <h3 className="font-bold">Please fix the following errors:</h3>
+          <ul className="list-disc ml-6">
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="space-y-6">
         {data.map((expense, index) => (
           <div key={index} className="border p-4 rounded shadow bg-white space-y-2">
@@ -92,6 +105,16 @@ export default function ExpensesPage({
                   value={expense.amount}
                   min={0}
                   onChange={(e) => handleChange(index, 'amount', e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium mb-1">Note</label>
+                <input
+                  type="text"
+                  className="input border border-gray-400 bg-gray-100 rounded-md shadow-md pl-4 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="(optional)"
+                  value={expense.note}
+                  onChange={(e) => handleChange(index, 'note', e.target.value)}
                 />
               </div>
             </div>

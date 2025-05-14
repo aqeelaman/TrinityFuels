@@ -19,9 +19,11 @@ type PaymentEntries = {
 export default function CashEntryPage({
   data,
   setData,
+  errors = [],
 }: {
   data: PaymentEntries;
   setData: Dispatch<SetStateAction<PaymentEntries>>;
+  errors?: string[];
 }) {
   const handleDenominationChange = (key: number, value: number) => {
     const updatedData = { ...data };
@@ -40,6 +42,16 @@ export default function CashEntryPage({
   return (
     <>
       <h2 className="text-2xl font-bold mb-6 text-left">💰 Payment Entry</h2>
+      {errors.length > 0 && (
+                <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+                    <h3 className="font-bold">Please fix the following errors:</h3>
+                    <ul className="list-disc ml-6">
+                        {errors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>

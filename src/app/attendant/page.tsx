@@ -13,9 +13,7 @@ import DayReport from '../../components/Attendant/DayReport';
 export default function Attendant() {
     const [activeForm, setActiveForm] = useState('shift');
     const [step, setStep] = useState(0);
-    const [formErrors, setFormErrors] = useState<{
-        [x: string]: any; form: string; error: string
-    }[]>([]);
+    const [formErrors, setFormErrors] = useState<{ [key: string]: string[] }>({});
 
     const [shiftData, setShiftData] = useState<ShiftData>({
         attendants: [],
@@ -93,46 +91,35 @@ export default function Attendant() {
     }, []);
 
     // Validation schemas for each form
-    const validateCurrentStep = async () => {
-        const currentForm = formOrder[step];
+    const validateForm = async (formName: string) => {
         try {
             const dataToValidate =
-                currentForm === 'shift'
+                formName === 'shift'
                     ? shiftData
-                    : currentForm === 'lubricant'
+                    : formName === 'lubricant'
                         ? lubricantsData
-                        : currentForm === 'indent' && indentData.length > 0
+                        : formName === 'indent'
                             ? indentData
-                            : currentForm === 'expense' && expensesData.length > 0
+                            : formName === 'expense'
                                 ? expensesData
                                 : receiptData;
 
-            if (!dataToValidate || (Array.isArray(dataToValidate) && dataToValidate.length === 0)) {
-                return true; // Skip validation for empty indents or expenses
-            }
-
-            await validationSchemas[currentForm as keyof typeof validationSchemas].validate(dataToValidate);
+            await validationSchemas[formName as keyof typeof validationSchemas].validate(dataToValidate, { abortEarly: false });
+            setFormErrors((prev) => ({ ...prev, [formName]: [] })); // Clear errors for this form
             return true;
         } catch (err: any) {
-            alert(err.message); // Display validation error
+            console.log(err)
+            const errors = err.inner.map((e: any) => e.message); // Collect validation errors
+            console.log(errors)
+            setFormErrors((prev) => ({ ...prev, [formName]: errors }));
             return false;
         }
     };
 
-    // const nextStep = async () => {
-    //     const isValid = await validateCurrentStep();
-    //     if (isValid) {
-    //         const currentIndex = formOrder.indexOf(activeForm);
-    //         if (currentIndex < formOrder.length - 1) {
-    //             setActiveForm(formOrder[currentIndex + 1]);
-    //             setStep(currentIndex + 1);
-    //         }
-    //     }
-    // };
-
     const nextStep = () => {
         const currentIndex = formOrder.indexOf(activeForm);
         if (currentIndex < formOrder.length - 1) {
+            validateForm(activeForm);
             setActiveForm(formOrder[currentIndex + 1]);
             setStep(currentIndex + 1);
         }
@@ -146,32 +133,44 @@ export default function Attendant() {
         }
     };
 
-    const handleSubmit = async () => {
-        const isValid = await validateCurrentStep();
-        if (isValid) {
-            console.log('Submitting data:', {
-                shift: shiftData,
-                lubricants: lubricantsData,
-                indent: indentData,
-                expenses: expensesData,
-                receipt: receiptData,
-            });
-            // Save data to the database here
+    const handleNavigation = async (formName: string) => {
+        if (formName === 'report') {
+            // Validate all forms before navigating to DayReport
+            await Promise.all(
+                formOrder.slice(0, -1).map((form) => validateForm(form))
+            );
         }
+
+        setActiveForm(formName);
+        setStep(formOrder.indexOf(formName));
     };
+
+    // const handleSubmit = async () => {
+    //     const isValid = await validateCurrentStep();
+    //     if (isValid) {
+    //         console.log('Submitting data:', {
+    //             shift: shiftData,
+    //             lubricants: lubricantsData,
+    //             indent: indentData,
+    //             expenses: expensesData,
+    //             receipt: receiptData,
+    //         });
+    //         // Save data to the database here
+    //     }
+    // };
 
     const renderForm = () => {
         switch (activeForm) {
             case 'shift':
-                return <ShiftEntry data={shiftData} setData={setShiftData} />;
+                return <ShiftEntry data={shiftData} setData={setShiftData} errors={formErrors['shift']} />;
             case 'lubricant':
-                return <LubricantsSale data={lubricantsData} setData={setLubricantsData} />;
+                return <LubricantsSale data={lubricantsData} setData={setLubricantsData} errors={formErrors['lubricant']} />;
             case 'indent':
-                return <IndentEntry data={indentData} setData={setIndentData} />;
+                return <IndentEntry data={indentData} setData={setIndentData} errors={formErrors['indent']} />;
             case 'expense':
-                return <ExpenseEntry data={expensesData} setData={setExpensesData} />;
+                return <ExpenseEntry data={expensesData} setData={setExpensesData} errors={formErrors['expense']} />;
             case 'receipt':
-                return <ReceiptEntry data={receiptData} setData={setReceiptData} />;
+                return <ReceiptEntry data={receiptData} setData={setReceiptData} errors={formErrors['receipt']} />;
             case 'report':
                 return (
                     <DayReport
@@ -182,7 +181,8 @@ export default function Attendant() {
                             expenses: expensesData,
                             receipt: receiptData,
                         }}
-                    // onSubmit={handleSubmit}
+                        errors={formErrors}
+                        onNavigateToForm={handleNavigation}
                     />
                 );
             default:
@@ -197,20 +197,10 @@ export default function Attendant() {
                 {formOrder.map((form, index) => (
                     <button
                         key={form}
-                        onClick={() => {
-                            setActiveForm(form);
-                            setStep(index);
-                            // if (index <= step) {
-                            //     setActiveForm(form);
-                            //     setStep(index);
-                            // }
-                        }}
-                        className={`w-full py-3 px-4 rounded-lg ${activeForm === form
-                            ? 'bg-blue-800'
-                            : 'bg-blue-500 hover:bg-blue-700'
-                            }
-                             text-white transition-colors`}
-                    //disabled={index > step}
+                        onClick={() => handleNavigation(form)}
+                        className={`w-full py-3 px-4 rounded-lg ${
+                            activeForm === form ? 'bg-blue-800' : 'bg-blue-500 hover:bg-blue-700'
+                        } text-white transition-colors`}
                     >
                         {form.charAt(0).toUpperCase() + form.slice(1)} {form === 'report' ? 'Review' : 'Entry'}
                     </button>

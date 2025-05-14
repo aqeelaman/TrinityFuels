@@ -9,11 +9,11 @@ type IndentSaleEntry = {
   time: string;
 };
 
-export default function IndentEntry({ data, setData, }: {
-  data: IndentSaleEntry[]; setData: (data: IndentSaleEntry[]) => void;
+export default function IndentEntry({ data, setData, errors = [] }: {
+  data: IndentSaleEntry[]; setData: (data: IndentSaleEntry[]) => void; errors?: string[];
 }) {
 
-  const CUSTOMERS = ["TATA Sales", "TATA Service", "Hysum Steels", "BMW", "Kalpavriksha","TK","VK","Anil Noronha","LPG"];
+  const CUSTOMERS = ["TATA Sales", "TATA Service", "Hysum Steels", "BMW", "Kalpavriksha", "TK", "VK", "Anil Noronha", "LPG"];
 
   const handleChange = (index: number, field: string, value: any) => {
     const updated = [...data];
@@ -66,6 +66,16 @@ export default function IndentEntry({ data, setData, }: {
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">📋 Indent Sales</h2>
+      {errors.length > 0 && (
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+          <h3 className="font-bold">Please fix the following errors:</h3>
+          <ul className="list-disc ml-6">
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="space-y-6">
         {data.map((entry, index) => (
           <div key={index} className="border p-4 rounded shadow bg-white space-y-2">

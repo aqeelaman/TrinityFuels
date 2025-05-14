@@ -26,7 +26,7 @@ type ShiftData = {
   readings: Reading[];
 };
 
-export default function ShiftEntryPage({ data, setData }: { data: ShiftData; setData: Dispatch<SetStateAction<ShiftData>> }) {
+export default function ShiftEntryPage({ data, setData, errors = [] }: { data: ShiftData; setData: Dispatch<SetStateAction<ShiftData>>; errors?: string[] }) {
   const { attendants, shiftTime, date, dispenser, fuelPrices, readings } = data;
 
   // useEffect(() => {
@@ -93,6 +93,16 @@ export default function ShiftEntryPage({ data, setData }: { data: ShiftData; set
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">🚦 Shift Entry</h2>
+      {errors.length > 0 && (
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+          <h3 className="font-bold">Please fix the following errors:</h3>
+          <ul className="list-disc ml-6">
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         {/* Attendants */}

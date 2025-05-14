@@ -1,14 +1,20 @@
 'use client';
 
 import { ReportData } from '@/types/types';
-import { utils, writeFile } from 'xlsx';
+import { exportToExcel } from '@/utils/exportToExcel';
 
 type Props = {
   report: ReportData;
+  errors: { [key: string]: string[] };
+  onNavigateToForm: (formName: string) => void;
 };
 
-export default function ReportPage({ report }: Props) {
+export default function DayReport ({ report, errors, onNavigateToForm }: Props) {
   const { shift, receipt, indent, lubricants, expenses } = report;
+
+  const hasErrors = Object.values(errors).some((errorList) => errorList.length > 0);
+  console.log('Errors:', errors);
+  console.log('Report:', report);
 
   // Utility function to calculate totals for fuel types
   const calculateFuelSummary = () => {
@@ -99,7 +105,15 @@ export default function ReportPage({ report }: Props) {
   const fuelSummaryRows = calculateFuelSummary();
 
   // SectionTable Component
-  const SectionTable = ({ title, headers, rows, }: { title: string; headers: string[]; rows: (string | number)[][]; }) => (
+  const SectionTable = ({
+    title,
+    headers,
+    rows,
+  }: {
+    title: string;
+    headers: string[];
+    rows: (string | number)[][];
+  }) => (
     <section className="space-y-4">
       <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
       <div className="overflow-x-auto rounded-lg border shadow-md">
@@ -130,118 +144,168 @@ export default function ReportPage({ report }: Props) {
   );
 
   // 🟢 Export to Excel
-  const exportToExcel = () => {
-    const wb = utils.book_new();
-
-    const summary = [
-      ['TRINITY FUELS KANNUR'],
-      ['Date', shift.date],
-      ['Shift Time', shift.shiftTime],
-      ['Dispenser', shift.dispenser],
-      ['Attendants', shift.attendants.join(', ')],
-      ['Fuel Prices', `HSD ₹${shift.fuelPrices.HSD}, MS ₹${shift.fuelPrices.MS}`],
-    ];
-
-    const fuelTable = [
-      [],
-      ['Fuel Sales'],
-      ['Nozzle', 'FuelType', 'Opening', 'Closing', 'TestQty', 'SaleQty', 'Price', 'Amount'],
-      ...nozzleRows.map((r) => Object.values(r)),
-      ['Total', '', '', '', '', '', '', totalFuelSales],
-    ];
-
-    const fuelSummaryTable = [
-      [],
-      ['Fuel Summary'],
-      ['FuelType', 'TotalQty', 'Rate', 'TotalAmount'],
-      ...fuelSummaryRows.map((r) => Object.values(r)),
-      ['Total', '', '', totalFuelSales],
-    ];
-
-    const indentTable = [
-      [],
-      ['Indent Sales'],
-      ['Customer', 'Vehicle', 'FuelType', 'Qty', 'Price', 'Amount', 'IndentSlip', 'Time'],
-      ...indentRows.map((r) => Object.values(r)),
-      ['Total', '', '', '', '', totalIndent],
-    ];
-
-    const lubTable = [
-      [],
-      ['Lubricants'],
-      ['Name', 'Qty', 'Price', 'Amount'],
-      ...lubricantRows.map((r) => Object.values(r)),
-      ['Total', '', '', totalLubricants],
-    ];
-
-    const cashTable = [
-      [],
-      ['Cash Summary'],
-      ['Denomination', 'Count', 'Amount'],
-      ...denominationRows.map((r) => Object.values(r)),
-      ['Coins', '', receipt.coins],
-      ['Cash Total', '', cashTotal],
-      ['Paytm', '', receipt.paytm],
-      ['Swipe', '', receipt.swipe],
-      ['Scheme', '', receipt.scheme || 0],
-      ['Total', '', totalReceipt],
-    ];
-
-    const expTable = [
-      [],
-      ['Expenses'],
-      ['Category', 'Amount', 'Note'],
-      ...expenseRows.map((r) => Object.values(r)),
-      ['Total', totalExpenses],
-    ];
-
-    const grandTotal = [
-      [],
-      ['Grand Total Summary'],
-      ['Total Fuel Sales', totalFuelSales],
-      ['Total Indent Sales', totalIndent],
-      ['Total Lubricants', totalLubricants],
-      ['Total Expenses', totalExpenses],
-      ['Total Cash Collected', totalReceipt],
-      ['Excess/Shortage', excessOrShort],
-    ];
-
-    const data = [
-      ...summary,
-      ...fuelTable,
-      ...fuelSummaryTable,
-      ...indentTable,
-      ...lubTable,
-      ...cashTable,
-      ...expTable,
-      ...grandTotal,
-    ];
-
-    // Format the date as dd-mm-yy
-    const shiftDate = new Date(shift.date);
-    const formattedDate = `${shiftDate.getDate().toString().padStart(2, '0')}-${(shiftDate.getMonth() + 1).toString().padStart(2, '0')}-${shiftDate.getFullYear().toString().slice(-2)}`;
-
-    // Combine the formatted date, shift time, and "Report"
-    const fileName = `${formattedDate}_${shift.shiftTime}_Report.xlsx`;
-
-
-    const sheet = utils.aoa_to_sheet(data);
-    utils.book_append_sheet(wb, sheet, 'Shift Report');
-    writeFile(wb, fileName);
+  const handleExportToExcel = () => {
+    exportToExcel(
+      shift,
+      receipt,
+      nozzleRows,
+      fuelSummaryRows,
+      indentRows,
+      lubricantRows,
+      denominationRows,
+      expenseRows,
+      totalFuelSales,
+      totalIndent,
+      totalLubricants,
+      totalExpenses,
+      cashTotal,
+      totalReceipt,
+      excessOrShort
+    );
   };
 
-  return (
+  
+  // const exportToExcel = () => {
+  //   try {
+  //     const wb = utils.book_new();
 
+  //     const summary = [
+  //       ['TRINITY FUELS KANNUR'],
+  //       ['Date', shift.date],
+  //       ['Shift Time', shift.shiftTime],
+  //       ['Dispenser', shift.dispenser],
+  //       ['Attendants', shift.attendants.join(', ')],
+  //       ['Fuel Prices', `HSD ₹${shift.fuelPrices.HSD}, MS ₹${shift.fuelPrices.MS}`],
+  //     ];
+
+  //     const fuelTable = [
+  //       [],
+  //       ['Fuel Sales'],
+  //       ['Nozzle', 'FuelType', 'Opening', 'Closing', 'TestQty', 'SaleQty', 'Price', 'Amount'],
+  //       ...nozzleRows.map((r) => Object.values(r)),
+  //       ['Total', '', '', '', '', '', '', totalFuelSales],
+  //     ];
+
+  //     const fuelSummaryTable = [
+  //       [],
+  //       ['Fuel Summary'],
+  //       ['FuelType', 'TotalQty', 'Rate', 'TotalAmount'],
+  //       ...fuelSummaryRows.map((r) => Object.values(r)),
+  //       ['Total', '', '', totalFuelSales],
+  //     ];
+
+  //     const indentTable = [
+  //       [],
+  //       ['Indent Sales'],
+  //       ['Customer', 'Vehicle', 'FuelType', 'Qty', 'Price', 'Amount', 'IndentSlip', 'Time'],
+  //       ...indentRows.map((r) => Object.values(r)),
+  //       ['Total', '', '', '', '', totalIndent],
+  //     ];
+
+  //     const lubTable = [
+  //       [],
+  //       ['Lubricants'],
+  //       ['Name', 'Qty', 'Price', 'Amount'],
+  //       ...lubricantRows.map((r) => Object.values(r)),
+  //       ['Total', '', '', totalLubricants],
+  //     ];
+
+  //     const cashTable = [
+  //       [],
+  //       ['Cash Summary'],
+  //       ['Denomination', 'Count', 'Amount'],
+  //       ...denominationRows.map((r) => Object.values(r)),
+  //       ['Coins', '', receipt.coins],
+  //       ['Cash Total', '', cashTotal],
+  //       ['Paytm', '', receipt.paytm],
+  //       ['Swipe', '', receipt.swipe],
+  //       ['Scheme', '', receipt.scheme || 0],
+  //       ['Total', '', totalReceipt],
+  //     ];
+
+  //     const expTable = [
+  //       [],
+  //       ['Expenses'],
+  //       ['Category', 'Amount', 'Note'],
+  //       ...expenseRows.map((r) => Object.values(r)),
+  //       ['Total', totalExpenses],
+  //     ];
+
+  //     const grandTotal = [
+  //       [],
+  //       ['Grand Total Summary'],
+  //       ['Total Fuel Sales', totalFuelSales],
+  //       ['Total Indent Sales', totalIndent],
+  //       ['Total Lubricants', totalLubricants],
+  //       ['Total Expenses', totalExpenses],
+  //       ['Total Cash Collected', totalReceipt],
+  //       ['Excess/Shortage', excessOrShort],
+  //     ];
+
+  //     const data = [
+  //       ...summary,
+  //       ...fuelTable,
+  //       ...fuelSummaryTable,
+  //       ...indentTable,
+  //       ...lubTable,
+  //       ...cashTable,
+  //       ...expTable,
+  //       ...grandTotal,
+  //     ];
+
+  //     // Format the date as dd-mm-yy
+  //     const shiftDate = new Date(shift.date);
+  //     const formattedDate = `${shiftDate.getDate().toString().padStart(2, '0')}-${(shiftDate.getMonth() + 1).toString().padStart(2, '0')}-${shiftDate.getFullYear().toString().slice(-2)}`;
+
+  //     // Combine the formatted date, shift time, and "Report"
+  //     const fileName = `${formattedDate}_${shift.shiftTime}_Report.xlsx`;
+
+  //     const sheet = utils.aoa_to_sheet(data);
+  //     utils.book_append_sheet(wb, sheet, 'Shift Report');
+  //     writeFile(wb, fileName);
+
+  //   } catch (error) {
+  //     console.error('Error exporting to Excel:', error);
+  //     alert('Failed to export the report. Please try again.');
+  //   }
+  // };
+
+  return (
     <div className="px-6 py-5 space-y-4  bg-white shadow-lg rounded-lg">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold text-gray-800">🧾 Shift Report</h2>
         <button
-          onClick={exportToExcel}
+          onClick={handleExportToExcel}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Download Report
         </button>
       </div>
+      {hasErrors && (
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
+          <h3 className="font-bold">Please fix the following errors:</h3>
+          {Object.entries(errors).map(([form, errorList]) =>
+            errorList.length > 0 ? (
+              <div key={form}>
+                <p className="font-semibold">
+                  {form.charAt(0).toUpperCase() + form.slice(1)}:
+                </p>
+                <ul className="list-disc ml-6">
+                  {errorList.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => onNavigateToForm(form)}
+                  className="text-blue-600 underline mt-2"
+                >
+                  Go to {form.charAt(0).toUpperCase() + form.slice(1)} Form
+                </button>
+              </div>
+            ) : null
+          )}
+        </div>
+      )}
       <div className='max-w-4xl mx-auto px-6 py-3 space-y-4'>
         <section className="bg-gray-100 p-6 rounded-lg shadow-md space-y-4">
           <h3 className="text-xl font-semibold">Shift Info</h3>
@@ -351,13 +415,26 @@ export default function ReportPage({ report }: Props) {
           <p><strong>Excess / Shortage:</strong> ₹{excessOrShort.toFixed(0)}</p>
         </section>
         <button
-          onClick={exportToExcel}
+          onClick={handleExportToExcel}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Download Report
         </button>
       </div>
 
+      <button
+        disabled={hasErrors}
+        className={`px-4 py-2 rounded ${hasErrors ? 'bg-gray-400' : 'bg-blue-600 text-white'}`}
+        onClick={handleExportToExcel}
+      >
+        Export as Excel
+      </button>
+      <button
+        disabled={hasErrors}
+        className={`px-4 py-2 rounded ${hasErrors ? 'bg-gray-400' : 'bg-blue-600 text-white'}`}
+      >
+        Save
+      </button>
     </div>
   );
-}
+};
