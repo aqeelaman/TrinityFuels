@@ -230,7 +230,9 @@ export default function DayReport({ report, errors, onNavigateToForm }: Props) {
           <SectionTable
             title="Indent Sales"
             headers={['S.No.', 'Customer', 'Vehicle', 'Fuel', 'Qty', 'Amount', 'Slip #', 'Time']}
-            rows={indent.map((i, idx) => [
+            rows={indent
+              .filter(i => i.customerName.trim() !== '' && i.vehicleNumber.trim()!== '' && i.slipNumber > 0 )
+              .map((i, idx) => [
               idx + 1,
               i.customerName,
               i.vehicleNumber || '',

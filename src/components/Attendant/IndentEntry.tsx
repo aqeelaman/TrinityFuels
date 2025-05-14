@@ -53,6 +53,19 @@ export default function IndentEntry({ data, setData, errors = [] }: {
     ]);
   };
 
+  const clearEntry= () => {
+    setData([
+      {
+        customerName: "",
+        vehicleNumber: "",
+        fuelType: "MS",
+        quantity: 0,
+        slipNumber: 0,
+        time: "",
+      },
+    ]);
+  }
+
   const removeEntry = (index: number) => {
     const updated = [...data];
     updated.splice(index, 1);
@@ -87,6 +100,14 @@ export default function IndentEntry({ data, setData, errors = [] }: {
                   className="text-red-600 text-sm"
                 >
                   Remove
+                </button>
+              )}
+              {data.length == 1 && (
+                <button
+                  onClick={() => clearEntry()}
+                  className="text-red-600 text-sm"
+                >
+                  Clear
                 </button>
               )}
             </div>

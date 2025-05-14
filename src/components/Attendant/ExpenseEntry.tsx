@@ -1,5 +1,7 @@
 'use client';
 
+import { clear } from "console";
+
 type ExpenseData = {
   expenseName: string;
   amount: number;
@@ -48,6 +50,15 @@ export default function ExpensesPage({
     setData(updated);
   };
 
+  const clearEntry = () => {
+    setData([
+      {
+        expenseName: "",
+        amount: 0,
+      },
+    ]);
+  };
+
   const check = () => {
     console.log('Expenses:', data);
   }
@@ -76,6 +87,14 @@ export default function ExpensesPage({
                   className="text-red-600 text-sm"
                 >
                   Remove
+                </button>
+              )}
+              {data.length == 1 && (
+                <button
+                  onClick={() => clearEntry()}
+                  className="text-red-600 text-sm"
+                >
+                  Clear
                 </button>
               )}
             </div>

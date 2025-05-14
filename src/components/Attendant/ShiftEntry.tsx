@@ -29,19 +29,6 @@ type ShiftData = {
 export default function ShiftEntryPage({ data, setData, errors = [] }: { data: ShiftData; setData: Dispatch<SetStateAction<ShiftData>>; errors?: string[] }) {
   const { attendants, shiftTime, date, dispenser, fuelPrices, readings } = data;
 
-  // useEffect(() => {
-  //   // Initialize readings for dispenser 1 on load
-  //   const nozzleCount = dispenser === 1 ? 2 : 4;
-  //   const initialReadings = Array.from({ length: nozzleCount }).map((_, i) => ({
-  //     nozzle: i + 1,
-  //     fuelType: (i + 1) % 2 === 1 ? 'HSD' as FuelType : 'MS' as FuelType,
-  //     opening: 0,
-  //     closing: 0,
-  //     testQty: 0,
-  //   }));
-  //   setData((prev) => ({ ...prev, readings: initialReadings }));
-  // }, [setData]);
-
   const handleReadingChange = (index: number, field: keyof Reading, value: number) => {
     const updated = [...readings];
     updated[index] = { ...updated[index], [field]: isNaN(value) ? 0 : value };
@@ -191,6 +178,7 @@ export default function ShiftEntryPage({ data, setData, errors = [] }: { data: S
               <input
                 type="number"
                 step="0.01"
+                min={0}
                 value={fuelPrices.HSD}
                 onChange={(e) =>
                   setData((prev) => ({
@@ -206,6 +194,7 @@ export default function ShiftEntryPage({ data, setData, errors = [] }: { data: S
               <input
                 type="number"
                 step="0.01"
+                min={0}
                 value={fuelPrices.MS}
                 onChange={(e) =>
                   setData((prev) => ({
@@ -251,6 +240,7 @@ export default function ShiftEntryPage({ data, setData, errors = [] }: { data: S
                     <input
                       type="number"
                       value={r.opening === 0 ? '' : r.opening}
+                      min={0}
                       placeholder="0"
                       onChange={(e) => handleReadingChange(i, 'opening', parseFloat(e.target.value))}
                       className="w-20 p-1 border rounded"
@@ -260,6 +250,7 @@ export default function ShiftEntryPage({ data, setData, errors = [] }: { data: S
                     <input
                       type="number"
                       value={r.closing === 0 ? '' : r.closing}
+                      min={0}
                       placeholder="0"
                       onChange={(e) => handleReadingChange(i, 'closing', parseFloat(e.target.value))}
                       className="w-20 p-1 border rounded"
@@ -269,6 +260,7 @@ export default function ShiftEntryPage({ data, setData, errors = [] }: { data: S
                     <input
                       type="number"
                       value={r.testQty}
+                      min={0}
                       step={5}
                       onChange={(e) => handleReadingChange(i, 'testQty', parseFloat(e.target.value))}
                       className="w-20 p-1 border rounded"
